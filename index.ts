@@ -1,5 +1,6 @@
 import express from 'express';
 import connection from './db/db.init';
+import { User } from './src/entities/user';
 const app = express();
 
 connection.then(res => {
@@ -9,8 +10,9 @@ connection.then(res => {
 })
 
 
-app.get('/', (req, res, next) => {
-    res.json({ name: 'hello'})
+app.get('/', async (req, res, next) => {
+    const result = await User.find()
+    return res.json(result)
 })
 
 app.listen(process.env.PORT || 5000);
