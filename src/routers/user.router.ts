@@ -26,6 +26,7 @@ router.get('/user', async (req, res, next) => {
 
 router.post('/user', async (req, res, next) => {
     try {
+        console.log(req.body);
         const result = await User.insert(req.body)
         if (result) {
             res.json(result);
