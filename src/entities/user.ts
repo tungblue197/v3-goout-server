@@ -1,4 +1,4 @@
-import { Entity, BaseEntity, Column, PrimaryColumn, OneToOne, JoinColumn } from "typeorm";
+import { Entity, BaseEntity, Column, PrimaryColumn, OneToOne, JoinColumn, ManyToOne } from "typeorm";
 import { Location } from "./location";
 
 @Entity('users')
@@ -69,7 +69,6 @@ export class User extends BaseEntity {
     note!: string
     
 
-    @OneToOne(() => Location)
-    @JoinColumn()
-    location!:string
+    @ManyToOne(() => Location, loc => loc.id)
+    location!:Location
 }

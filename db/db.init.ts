@@ -7,7 +7,7 @@ import { Vote } from '../src/entities/vote';
 const connection = createConnection({
     type: 'sqlite',
     database: __dirname + '/db.sqlite',
-    synchronize: true,
+    synchronize: false,
     logging: true,
     entities: [
         User,

@@ -1,5 +1,6 @@
-import { Entity, BaseEntity, Column, PrimaryColumn, OneToOne, JoinColumn, ManyToMany, JoinTable } from "typeorm";
+import { Entity, BaseEntity, Column, PrimaryColumn, OneToOne, JoinColumn, ManyToMany, JoinTable, ManyToOne } from "typeorm";
 import { Location } from "./location";
+import { User } from "./user";
 
 @Entity('sessions')
 export class Session extends BaseEntity {
@@ -12,6 +13,8 @@ export class Session extends BaseEntity {
     })
     title!: string
 
+    @ManyToOne(() => User, user => user.id)
+    createdBy!: User
     @Column({
         nullable: true,
         default: null
@@ -20,16 +23,28 @@ export class Session extends BaseEntity {
 
     @Column({
         nullable: true,
+        default: 0
+    })
+    timeout?: number
+
+    @Column({
+        nullable: true,
         default: false
     })
     done!: boolean
 
-    @OneToOne(() => Location)
-    @JoinColumn()
+    @ManyToOne(() => Location, loc => loc.id)
     winLocation!: string
 
-    @ManyToMany(() => Location)
+    @ManyToMany(() => Location, loc => loc.id, { cascade: true })
     @JoinTable()
     locations!: Location[]
+
+    addLocation(location: Location){
+        if(this.locations == null){
+            this.locations =  new Array<Location>();
+        }
+        this.locations.push(location)
+    }
 
 }

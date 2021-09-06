@@ -27,11 +27,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Session = void 0;
 var typeorm_1 = require("typeorm");
 var location_1 = require("./location");
+var user_1 = require("./user");
 var Session = /** @class */ (function (_super) {
     __extends(Session, _super);
     function Session() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    Session.prototype.addLocation = function (location) {
+        if (this.locations == null) {
+            this.locations = new Array();
+        }
+        this.locations.push(location);
+    };
     __decorate([
         (0, typeorm_1.PrimaryColumn)(),
         __metadata("design:type", String)
@@ -44,6 +51,10 @@ var Session = /** @class */ (function (_super) {
         __metadata("design:type", String)
     ], Session.prototype, "title", void 0);
     __decorate([
+        (0, typeorm_1.ManyToOne)(function () { return user_1.User; }, function (user) { return user.id; }),
+        __metadata("design:type", user_1.User)
+    ], Session.prototype, "createdBy", void 0);
+    __decorate([
         (0, typeorm_1.Column)({
             nullable: true,
             default: null
@@ -53,17 +64,23 @@ var Session = /** @class */ (function (_super) {
     __decorate([
         (0, typeorm_1.Column)({
             nullable: true,
+            default: 0
+        }),
+        __metadata("design:type", Number)
+    ], Session.prototype, "timeout", void 0);
+    __decorate([
+        (0, typeorm_1.Column)({
+            nullable: true,
             default: false
         }),
         __metadata("design:type", Boolean)
     ], Session.prototype, "done", void 0);
     __decorate([
-        (0, typeorm_1.OneToOne)(function () { return location_1.Location; }),
-        (0, typeorm_1.JoinColumn)(),
+        (0, typeorm_1.ManyToOne)(function () { return location_1.Location; }, function (loc) { return loc.id; }),
         __metadata("design:type", String)
     ], Session.prototype, "winLocation", void 0);
     __decorate([
-        (0, typeorm_1.ManyToMany)(function () { return location_1.Location; }),
+        (0, typeorm_1.ManyToMany)(function () { return location_1.Location; }, function (loc) { return loc.id; }, { cascade: true }),
         (0, typeorm_1.JoinTable)(),
         __metadata("design:type", Array)
     ], Session.prototype, "locations", void 0);

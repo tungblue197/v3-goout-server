@@ -110,9 +110,8 @@ var User = /** @class */ (function (_super) {
         __metadata("design:type", String)
     ], User.prototype, "note", void 0);
     __decorate([
-        (0, typeorm_1.OneToOne)(function () { return location_1.Location; }),
-        (0, typeorm_1.JoinColumn)(),
-        __metadata("design:type", String)
+        (0, typeorm_1.ManyToOne)(function () { return location_1.Location; }, function (loc) { return loc.id; }),
+        __metadata("design:type", location_1.Location)
     ], User.prototype, "location", void 0);
     User = __decorate([
         (0, typeorm_1.Entity)('users')

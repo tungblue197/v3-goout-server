@@ -71,45 +71,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = require("express");
 var user_1 = require("../entities/user");
-var auth_1 = require("../middlewares/auth");
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-var crypto_1 = require("crypto");
 var bcrypt_1 = __importDefault(require("bcrypt"));
-var bcrypt_const_1 = __importDefault(require("../constants/bcrypt.const"));
-var jwt_const_1 = __importDefault(require("../constants/jwt.const"));
 var httpException_1 = require("../helpers/httpException");
 var httpRespone_1 = __importDefault(require("../helpers/httpRespone"));
 var passport_1 = __importDefault(require("passport"));
 var passportLocal = __importStar(require("passport-local"));
+// import * as passportGoogle from 'passport-google-oauth20';
+var uuid_1 = require("uuid");
+var const_1 = require("../consts/const");
 var LocalStrategy = passportLocal.Strategy;
 // const GoogleStrategy = passportGoogle.Strategy;
 var router = (0, express_1.Router)();
-// google login ------------->
-// passport.use(new GoogleStrategy({
-//     clientID: '771869397488-srfk27ev1njakl645njsj6t1h6u851cj.apps.googleusercontent.com',
-//     clientSecret: 'TRTIBLLtt0oAPKQnUvtUQymt',
-//     callbackURL: "/auth/google/callback",
-//     passReqToCallback: true
-//   },
-//   function(req, accessToken, refreshToken, profile, cb) {
-//       req.user = profile;
-//     return cb(null, profile);
-//   }
-// ))
-// passport.serializeUser((user, cb) => {
-//     cb(null, user);
-// })
-// passport.deserializeUser((user: any, cb) => {
-//     cb(null, user);
-// })
-// router.get('/auth/google', passport.authenticate('google', { scope : ['profile'] }));
-// router.get('/auth/google/callback', passport.authenticate('google', { successRedirect: '/',failureRedirect: '/error'}),function(req, res) {
-//     return res.redirect('/');
-// });
 //normal login ------------->
-router.get('/auth/test', function (req, res) {
-    res.sendFile('./index.html');
-});
 passport_1.default.use(new LocalStrategy(function (username, password, done) {
     var _this = this;
     user_1.User.findOne({ username: username })
@@ -133,28 +107,27 @@ passport_1.default.use(new LocalStrategy(function (username, password, done) {
         return done(err, null);
     });
 }));
-router.post('/auth/register', auth_1.resiterValidate, function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var user, result, payload, err_1;
+router.post('/auth/register', function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    var user_2, result, payload, err_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 2, , 3]);
-                user = __assign(__assign({}, req.body), { id: (0, crypto_1.randomUUID)(), password: bcrypt_1.default.hashSync(req.body.password, bcrypt_const_1.default.SALTT_OR_ROUNDS) });
-                return [4 /*yield*/, user_1.User.insert(user)];
+                user_2 = __assign(__assign({}, req.body), { id: (0, uuid_1.v4)(), password: bcrypt_1.default.hashSync(req.body.password, const_1.BCRYPT.SALTT_OR_ROUNDS) });
+                return [4 /*yield*/, user_1.User.insert(user_2)];
             case 1:
                 result = _a.sent();
                 if (result) {
                     payload = {
-                        username: user.username,
-                        id: user.id
+                        username: user_2.username,
+                        id: user_2.id
                     };
-                    jsonwebtoken_1.default.sign(payload, jwt_const_1.default.SECRET_KEY, { expiresIn: 1 * 24 * 60 * 60 * 1000 }, function (err, encoded) {
+                    jsonwebtoken_1.default.sign(payload, const_1.JWT.SECRET_KEY, { expiresIn: 1 * 24 * 60 * 60 * 1000 }, function (err, encoded) {
                         if (err)
                             next(err);
-                        return res.status(200).json(httpRespone_1.default.successRespone({ data: { accessToken: encoded } }));
+                        return res.status(200).json(httpRespone_1.default.successRespone({ data: { accessToken: encoded, user: { id: user_2.id, fullName: user_2.fullName } } }));
                     });
                 }
-                next(new httpException_1.HttpException(500, 'server error'));
                 return [3 /*break*/, 3];
             case 2:
                 err_1 = _a.sent();
@@ -173,8 +146,8 @@ router.post('/auth/login', function (req, res, next) {
                 username: user.username,
                 id: user.id
             };
-            var token = jsonwebtoken_1.default.sign(payload, jwt_const_1.default.SECRET_KEY);
-            return res.status(200).json(httpRespone_1.default.successRespone({ data: { accessToken: token }, message: 'Login success' }));
+            var token = jsonwebtoken_1.default.sign(payload, const_1.JWT.SECRET_KEY);
+            return res.status(200).json(httpRespone_1.default.successRespone({ data: { accessToken: token, user: { id: user.id, fullName: user.fullName, location: user.locationId, photoURL: user.photoURL } }, message: 'Login success' }));
         }
         else {
             return next(new httpException_1.HttpException(401, 'sai tài khoản hoạc mật khẩu'));
